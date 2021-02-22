@@ -80,15 +80,19 @@ class OpenGraph_Plugin implements Typecho_Plugin_Interface
 
         if ( ! $options ) return;
 
+        // 网站和文章描述抓取
         $content = $archive->is('index')
                 ? strip_tags($options->description)
                 : str_replace(array(' ', '\n', '\r', '　'), '', strip_tags($archive->content));
 
+        // 网站和文章地址抓取
         $url = $archive->is('index') ? $options->siteUrl : $archive->permalink;
+        // 网站和文章标题抓取
         $title =  $archive->is('index') ? strip_tags($options->title) : $archive->title;
-
+        // 访问页面类型
         $archiveType = ($archive->is('index') ? 'website' : 'article');
-        $self = Typecho_Widget::widget('Widget_Options')->plugin('OpenGraph');
+        // 当前插件配置项
+        $settings = $options->plugin('OpenGraph');
 
         $headers = array(
             'url' => $url,
@@ -96,11 +100,11 @@ class OpenGraph_Plugin implements Typecho_Plugin_Interface
             'description' => $content,
             'type' => $archiveType,
             'author' => isset($archive->author) && $archive->author ? $archive->author->name : '',
-            'image' => self::getAttachments($archive, $self->field)
+            'image' => self::getAttachments($archive, $settings->field)
         );
 
         if ($archive->is('index')) {
-            $headers['image'] = $self->cover;
+            $headers['image'] = $settings->cover;
         }
 
         $output = "";
